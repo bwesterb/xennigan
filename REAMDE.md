@@ -11,6 +11,7 @@ TODO
 ----
 
 - Write man page.
+- Clean environment
 
 
 Return codes
