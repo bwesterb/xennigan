@@ -9,8 +9,9 @@
 #include <boost/format.hpp>
 
 #include <sys/wait.h>
-
+#include <fcntl.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 boost::regex dom_name_regex("[a-zA-Z0-9\\-]+");
 
@@ -38,6 +39,16 @@ class Xennigan
 public:
     int main(int argc, char* argv[])
     {
+        // NOTE argc might be zero.
+        // We do not trust our environment.
+        if (clearenv() != 0)
+            return -6;
+
+        // First check if stdin, stdout and stderr are open.  If not, exit.
+        if (fcntl(0, F_GETFL) == -1 || fcntl(1, F_GETFL) == -1
+                                    || fcntl(2, F_GETFL) == -1)
+            return -5;
+
         // Get name of the domu from the commandline.
         if (argc != 2) {
             std::cerr << "xennigan: Expected single commandline option"
