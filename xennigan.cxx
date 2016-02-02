@@ -185,10 +185,10 @@ private:
             int status;
             waitpid(child_pid, &status, 0);
             if (!WIFEXITED(status))
-            std::cerr << "xl did not exit properly" << std::endl;
+                std::cerr << "xl did not exit properly" << std::endl;
             else if (WEXITSTATUS(status) != 0)
-            std::cerr << "xl exited with code "
-                      << WEXITSTATUS(status) << std::endl;
+                std::cerr << "xl exited with code "
+                          << WEXITSTATUS(status) << std::endl;
             return;
         }
 
