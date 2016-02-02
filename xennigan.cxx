@@ -172,7 +172,7 @@ private:
         c_args.push_back(this->xl_path.c_str());
         for (std::string const& arg : args)
             c_args.push_back(arg.c_str());
-        c_args.push_back(NULL);
+        c_args.push_back(nullptr);
         
         pid_t child_pid = vfork();
 
