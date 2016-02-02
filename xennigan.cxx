@@ -17,10 +17,8 @@ boost::regex dom_name_regex("[a-zA-Z0-9\\-]+");
 
 class Xennigan
 {
-    // std::string xl_path = "/usr/sbin/xl";  // configure?
-    // std::string xen_cfg_path_fmt = "/etc/xen/%1%.cfg";  // configure?
-    std::string xl_path = "/bin/echo";  // configure?
-    std::string xen_cfg_path_fmt = "%1%.cfg";  // configure?
+    std::string xl_path = "/usr/sbin/xl";  // configure?
+    std::string xen_cfg_path_fmt = "/etc/xen/%1%.cfg";  // configure?
 
     std::string dom_name;
     std::string xen_cfg_path;
