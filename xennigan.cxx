@@ -9,6 +9,9 @@
 #include <boost/format.hpp>
 
 #include <sys/wait.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -46,6 +49,9 @@ public:
         if (fcntl(0, F_GETFL) == -1 || fcntl(1, F_GETFL) == -1
                                     || fcntl(2, F_GETFL) == -1)
             return -5;
+
+        // Set umask to a sensible default.
+        umask(S_IWGRP | S_IWOTH);
 
         // Get name of the domu from the commandline.
         if (argc != 2) {
