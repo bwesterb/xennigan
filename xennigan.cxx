@@ -3,7 +3,6 @@
 #include <map>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/scoped_array.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/regex.hpp>
 #include <boost/format.hpp>
@@ -20,8 +19,8 @@ boost::regex dom_name_regex("[a-zA-Z0-9\\-]+");
 
 class Xennigan
 {
-    std::string xl_path = "/usr/sbin/xl";  // configure?
-    std::string xen_cfg_path_fmt = "/etc/xen/%1%.cfg";  // configure?
+    const std::string xl_path = "/usr/sbin/xl";  // configure?
+    const std::string xen_cfg_path_fmt = "/etc/xen/%1%.cfg";  // configure?
 
     std::string dom_name;
     std::string xen_cfg_path;
@@ -29,12 +28,14 @@ class Xennigan
 
     const std::map<std::string, void (Xennigan::*)()> cmd_map = {
             {"exit", &Xennigan::cmd_exit},
+            {"status", &Xennigan::cmd_list},
             {"list", &Xennigan::cmd_list},
             {"reboot", &Xennigan::cmd_reboot},
             {"shutdown", &Xennigan::cmd_shutdown},
             {"destroy", &Xennigan::cmd_destroy},
             {"console", &Xennigan::cmd_console},
             {"create", &Xennigan::cmd_create},
+            {"help", &Xennigan::cmd_help},
     };
 
 public:
@@ -89,7 +90,7 @@ public:
                 break;
             }
 
-            if(!line.size())
+            if (line.empty())
                 continue;
 
             // Split it into [command] [arg1] ...
@@ -99,7 +100,9 @@ public:
             // Find the command handler
             auto it = this->cmd_map.find(bits[0]);
             if (it == this->cmd_map.end()) {
-                std::cout << "command not found" << std::endl;
+                std::cout << "Command not found.  "
+                          << "Type `help' for a list of commands."
+                          << std::endl;
                 continue;
             }
 
@@ -148,21 +151,33 @@ private:
         this->run_xl({"create", this->xen_cfg_path});
     }
 
+    void cmd_help()
+    {
+        std::cout << "Available commands:" << std::endl
+                  << " status       shows status of domu" << std::endl
+                  << " shutdown     sends shutdown signal to domu" << std::endl
+                  << " reboot       sends reboot signal to domu" << std::endl
+                  << " console      opens console to domu" << std::endl
+                  << " destroy      immediate shutdown of domu" << std::endl
+                  << " create       starts domu if not running" << std::endl
+                  << " exit         exits shell" << std::endl;
+    }
+
     void run_xl(std::initializer_list<std::string> args)
     {
         // TODO this is a bit C-y.  Is there a C++ way?
         // Copy arguments into buffer.
-        boost::scoped_array<const char*> c_args(new const char*[args.size()+2]);
-        int idx = 0;
-        c_args[0] = this->xl_path.c_str();
+        std::vector<const char*> c_args;
+
+        c_args.push_back(this->xl_path.c_str());
         for (std::string const& arg : args)
-            c_args[++idx] = arg.c_str();
-        c_args[++idx] = NULL;
+            c_args.push_back(arg.c_str());
+        c_args.push_back(NULL);
         
         pid_t child_pid = vfork();
 
         if (child_pid == -1) {
-            std::cerr << "fork() failed" << std::endl;
+            std::cerr << "vfork() failed" << std::endl;
             return;
         }
 
@@ -179,7 +194,7 @@ private:
 
         // TODO make path to executable configurable.
         // TODO can we avoid the cast?
-        execv(this->xl_path.c_str(), (char**)c_args.get());
+        execv(this->xl_path.c_str(), const_cast<char**>(c_args.data()));
 
         _exit(-2);
     }
