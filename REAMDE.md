@@ -21,6 +21,9 @@ Return codes
 -4 Configuration file for domu not found
 -5 stdin, stdout or stderr not available
 -6 Could not clear environment
+-7 Could not load configuration file /etc/xennigan.conf
+-8 Could not find xl binary
+-9 Invalid domu-cfg-path in /etc/xennigan.conf
 
 Build
 -----

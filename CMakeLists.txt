@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 2.6)
 project (xennigan-shell)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11")
-find_package( Boost REQUIRED COMPONENTS regex filesystem system)
+find_package( Boost REQUIRED COMPONENTS regex filesystem system program_options)
 include_directories( ${Boost_INCLUDE_DIR} )
 add_executable(xennigan-shell xennigan-shell.cxx)
 target_link_libraries(xennigan-shell ${Boost_LIBRARIES})

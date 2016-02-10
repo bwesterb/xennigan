@@ -1,8 +1,10 @@
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <map>
 
 #include <boost/algorithm/string.hpp>
+#include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/regex.hpp>
 #include <boost/format.hpp>
@@ -15,15 +17,18 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-boost::regex dom_name_regex("[a-zA-Z0-9\\-]+");
+namespace po = boost::program_options;
+
+const boost::regex dom_name_regex("[a-zA-Z0-9\\-]+");
 
 class Xennigan
 {
-    const std::string xl_path = "/usr/sbin/xl";  // configure?
-    const std::string xen_cfg_path_fmt = "/etc/xen/%1%.cfg";  // configure?
+    std::string xl_path = "/usr/sbin/xl";
+    std::string domu_cfg_path_fmt = "/etc/xen/%1%.cfg";
+    const std::string config_file_path = "/etc/xennigan.conf";
 
     std::string dom_name;
-    std::string xen_cfg_path;
+    std::string domu_cfg_path;
     bool running = true;
 
     const std::map<std::string, void (Xennigan::*)()> cmd_map = {
@@ -54,6 +59,11 @@ public:
         // Set umask to a sensible default.
         umask(S_IWGRP | S_IWOTH);
 
+        // Load configuration file, if present.
+        if (!this->load_configuration_file())
+            return -7;
+
+
         // Get name of the domu from the commandline.
         if (argc != 2) {
             std::cerr << "xennigan: Expected single commandline option"
@@ -70,13 +80,27 @@ public:
             return -3;
         }
 
-        this->xen_cfg_path = (boost::format(this->xen_cfg_path_fmt)
-                                       % this->dom_name).str();
+        try {
+            this->domu_cfg_path = (boost::format(this->domu_cfg_path_fmt)
+                                           % this->dom_name).str();
+        } catch (std::exception& e) {
+            std::cerr << "Invalid domu-cfg-path: "
+                      << e.what() << std::endl;
+            return -9;
+        }
 
-        if (!boost::filesystem::exists(this->xen_cfg_path)) {
+        if (!boost::filesystem::exists(this->domu_cfg_path)) {
             std::cerr << "xennigan: configuration file for domain not found"
                       << std::endl;
             return -4;
+        }
+
+        // Check if xl binary exists
+        if (!boost::filesystem::exists(this->xl_path)) {
+            std::cerr << this->xl_path << " does not exist. "
+                      << "Please adjust xl-path in "
+                          << this->config_file_path << std::endl;
+            return -8;
         }
 
         // Main loop of the shell
@@ -148,7 +172,7 @@ private:
 
     void cmd_create()
     {
-        this->run_xl({"create", this->xen_cfg_path});
+        this->run_xl({"create", this->domu_cfg_path});
     }
 
     void cmd_help()
@@ -197,6 +221,41 @@ private:
         execv(this->xl_path.c_str(), const_cast<char**>(c_args.data()));
 
         _exit(-2);
+    }
+
+    bool load_configuration_file()
+    {
+        if (!boost::filesystem::exists(this->config_file_path))
+            return true;   // Use defaults
+
+        // Declare options for configuration file
+        po::options_description desc;
+        desc.add_options()
+            ("xl-path", po::value<std::string>())
+            ("domu-cfg-path", po::value<std::string>())
+        ;
+
+        // Parse config file
+        // TODO handle fail conditions of f
+        std::ifstream f(this->config_file_path);
+
+        po::variables_map vm;
+
+        try {
+            po::store(po::parse_config_file(f, desc), vm);
+        } catch (po::error& e) {
+            std::cerr << "Failed to parse config file: "
+                      << e.what() << std::endl;
+            return false;
+        }
+
+        // Store
+        if (vm.count("xl-path"))
+            this->xl_path = vm["xl-path"].as<std::string>();
+        if (vm.count("domu-cfg-path"))
+            this->domu_cfg_path_fmt = vm["domu-cfg-path"].as<std::string>();
+
+        return true;
     }
 };
 
