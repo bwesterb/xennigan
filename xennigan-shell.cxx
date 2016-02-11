@@ -9,6 +9,9 @@
 #include <boost/regex.hpp>
 #include <boost/format.hpp>
 
+#include <readline/readline.h>
+#include <readline/history.h>
+
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -25,7 +28,7 @@ class Xennigan
 {
     std::string xl_path = "/usr/sbin/xl";
     std::string domu_cfg_path_fmt = "/etc/xen/%1%.cfg";
-    const std::string config_file_path = "/etc/xennigan.conf";
+    const std::string config_file_path = "/etc/xennigan-shell.conf";
 
     std::string dom_name;
     std::string domu_cfg_path;
@@ -111,14 +114,17 @@ public:
 
         // Main loop of the shell
         while (this->running) {
-            std::string line;
+            std::string prompt = dom_name + "> ";
+            const char* c_line = readline(prompt.c_str());
 
-            // Get a line from stdin
-            std::cout << dom_name << "> ";
-            if (!std::getline(std::cin, line)) {
+            if (!c_line) {
                 std::cout << std::endl;
                 break;
             }
+
+            add_history(c_line);  // readline
+
+            std::string line(c_line);
 
             if (line.empty())
                 continue;
