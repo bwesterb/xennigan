@@ -103,6 +103,12 @@ public:
             return -8;
         }
 
+        // Check if xl binary path is absolute
+        if (this->xl_path.substr(0, 1) != "/") {
+            std::cerr << "xl-path is not absolute." << std::endl;
+            return -10;
+        }
+
         // Main loop of the shell
         while (this->running) {
             std::string line;

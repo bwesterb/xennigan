@@ -34,6 +34,7 @@ TODO
 * -7: Could not load configuration file `/etc/xennigan.conf`
 * -8: Could not find xl binary
 * -9: Invalid domu-cfg-path in `/etc/xennigan.conf`
+* -10: xl-path is not an absolute path.
 
 Build
 -----
