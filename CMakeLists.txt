@@ -12,7 +12,7 @@ target_link_libraries(xennigan-shell
 install(TARGETS xennigan-shell
         RUNTIME DESTINATION bin
         PERMISSIONS SETUID OWNER_EXECUTE GROUP_EXECUTE)
-install(FILES xennigan
+install(FILES update-xennigan
         DESTINATION sbin
         PERMISSIONS OWNER_EXECUTE)
 #target_compile_features(xennigan-shell PRIVATE cxx_uniform_initialization)
