@@ -26,6 +26,9 @@ Installation
 
 First build and install.
 
+    apt-get install cmake build-essential libboost-regex-dev \
+            libboost-filesystem-dev libboost-program-options-dev \
+            libboost-system-dev libreadline-dev
     mkdir build && cd build
     cmake ..
     make
