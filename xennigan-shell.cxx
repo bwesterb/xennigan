@@ -22,7 +22,7 @@
 
 namespace po = boost::program_options;
 
-const boost::regex dom_name_regex("[a-zA-Z0-9\\-]+");
+const boost::regex dom_name_regex("[a-zA-Z0-9\\-.]+");
 
 class Xennigan
 {
