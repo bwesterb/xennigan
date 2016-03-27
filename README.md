@@ -28,7 +28,7 @@ First build and install.
 
     apt-get install cmake build-essential libboost-regex-dev \
             libboost-filesystem-dev libboost-program-options-dev \
-            libboost-system-dev libreadline-dev
+            libboost-system-dev libreadline-dev python3
     mkdir build && cd build
     cmake ..
     make
