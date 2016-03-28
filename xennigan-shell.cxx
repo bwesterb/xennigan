@@ -62,6 +62,13 @@ public:
         // Set umask to a sensible default.
         umask(S_IWGRP | S_IWOTH);
 
+        // Set real uid of the process to 0 (root).  If we do not do this, then
+        // bash reverts the effective uid of `xl' back to that of the
+        // xennigan user.  See e.g.
+        //      http://stackoverflow.com/questions/556194
+        if (setuid(0) != 0)
+            return -11;
+
         // Load configuration file, if present.
         if (!this->load_configuration_file())
             return -7;
