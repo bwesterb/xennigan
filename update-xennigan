@@ -68,6 +68,8 @@ class Program:
         self.args = parser.parse_args()
 
     def write_authorized_keys(self):
+        key_to_domu_lut = {}  # dict to check for double occurances of keys
+
         # First, find domus
         with open(self.ak_path, 'wb') as f:
             f.write(b'# Maintained by update-xennigan.\n')
@@ -95,12 +97,20 @@ class Program:
                     bits = stripped_line.split()
                     if len(bits) <= 1:
                         print('{0}: ignoring line {1}'.format(
-                                    domu_name, lineno))
+                                    domu_name, lineno + 1))
                         continue
                     if not check_ssh_key(bits[1], bits[0]):
                         print('{0}: invalid ssh key on line {1}'.format(
-                                    domu_name, lineno))
+                                    domu_name, lineno + 1))
                         continue
+                    if bits[1] in key_to_domu_lut:
+                        print(('{0}: key on line {1} is also listed for '
+                               'domu {2} --- ignoring it here').format(
+                                   domu_name, lineno + 1,
+                                   key_to_domu_lut[bits[1]]))
+                        continue
+                    key_to_domu_lut[bits[1]] = domu_name
+
                     # Everything seems OK.  Include key
                     n_keys += 1
                     f.write(b'command="')
