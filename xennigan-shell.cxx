@@ -22,7 +22,7 @@
 
 namespace po = boost::program_options;
 
-const boost::regex dom_name_regex("[a-zA-Z0-9\\-]+");
+const boost::regex dom_name_regex("[a-zA-Z0-9\\-][a-zA-Z0-9\\-.]*");
 
 class Xennigan
 {
@@ -85,7 +85,7 @@ public:
 
         // Check name against regex
         if (!boost::regex_match(this->dom_name, dom_name_regex)) {
-            std::cerr << "xennigan: invalid characters in domain name"
+            std::cerr << "xennigan: invalid domain name"
                       << std::endl;
             return -3;
         }
