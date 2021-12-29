@@ -11,8 +11,11 @@ target_link_libraries(xennigan-shell
 # TODO set group?
 install(TARGETS xennigan-shell
         RUNTIME DESTINATION bin
-        PERMISSIONS SETUID OWNER_EXECUTE GROUP_EXECUTE)
+        PERMISSIONS SETUID
+            OWNER_EXECUTE OWNER_WRITE OWNER_READ
+            GROUP_EXECUTE GROUP_READ
+            WORLD_READ)
 install(FILES update-xennigan
         DESTINATION sbin
         PERMISSIONS OWNER_EXECUTE)
-#target_compile_features(xennigan-shell PRIVATE cxx_uniform_initialization)
+install(CODE "execute_process (COMMAND update-xennigan)")

@@ -47,9 +47,8 @@ Then run
 
     update-xennigan
 
-This will (after confirmation) create a `xennigan` user (and group) with
-home directory `/var/lib/xennigan`.  It will fill the `authorized_keys` file
-for `xennigan` appropriately.
+This will check the environment and willl fill the `authorized_keys` file
+of the `xennigan` user appropriately.
 
 An admin can now control their domu by SSHing as the `xennigan`
 user to the dom0.
