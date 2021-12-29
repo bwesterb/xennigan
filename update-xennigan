@@ -13,8 +13,6 @@ import binascii
 import argparse
 import subprocess
 
-from distutils.util import strtobool
-
 class PleaseExit(Exception):
     def __init__(self, code):
         self.code = code
@@ -22,10 +20,12 @@ class PleaseExit(Exception):
 def ask_confirmation():
     """ Asks user "yes or no" on the console """
     while True:
-        try:
-            return strtobool(input('[y/n] ').lower())
-        except ValueError:
-            pass
+        val = input('[y/n] ').lower()
+        if val in ('y', 'yes', 't', 'true', 'on', '1'):
+            return True
+        if val in ('n', 'no', 'f', 'false', 'off', '0'):
+            return False
+
 
 # From github.com/bwesterb/claviger
 def check_ssh_key(b64key, keytype):
